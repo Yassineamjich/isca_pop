@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="donation_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <!-- Filter docs to include only those records with reserve==True -->
+                <t t-set="filtered_docs" t-value="docs.filtered(lambda d: d.reserve)"/>
+                
+                <t t-foreach="filtered_docs" t-as="donation">
+                    <div class="page mt-4 mb-5">
+                        <div class="text-center">
+                            <h3 style="text-decoration: underline;">Donation Report</h3>
+                        </div>
+
+                        <!-- Donator Section -->
+                        <div class="mt-4">
+                            <div>
+                                <span style="font-size: 30px; font-weight: bold; text-decoration: underline;">Donator: </span>
+                                <t t-if="donation.donator">
+                                    <span style="font-size: 20px; ">
+                                        <t t-esc="donation.donator.name"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-size: 30px; font-weight: bold; text-decoration: underline;">Not specified</span>
+                                </t>
+                            </div>
+                            <div class="mt-2">
+                                <span style="font-size: 20px;  text-decoration: underline;">Address: </span>
+                                <t t-if="donation.donator and donation.donator.street">
+                                    <span style="font-size: 20px; font-weight: bold;">
+                                        <t t-esc="donation.donator.street"/>,
+                                        <t t-esc="donation.donator.street2"/>,
+                                        <t t-esc="donation.donator.partner_id.zip"/>,
+                                        <t t-esc="donation.donator.city"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-size: 20px; font-weight: bold;">Not specified</span>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Receiver Section -->
+                        <div class="mt-4">
+                            <div>
+                                <span style="font-size: 30px; font-weight: bold; text-decoration: underline;">Receiver: </span>
+                                <t t-if="donation.reservedby">
+                                    <span style="font-size: 20px;">
+                                        <t t-esc="donation.reservedby.name"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-size: 30px; font-weight: bold; text-decoration: underline;">Available</span>
+                                </t>
+                            </div>
+                            <div class="mt-2">
+                                <span style="font-size: 30px; font-weight: bold; text-decoration: underline;">Address: </span>
+                                <t t-if="donation.reservedby and donation.reservedby.street">
+                                    <span style="font-size: 20px; ">
+                                        <t t-esc="donation.reservedby.street"/>,
+                                        <t t-esc="donation.reservedby.street2"/>,
+                                        <t t-esc="donation.reservedby.partner_id.zip"/>,
+                                        <t t-esc="donation.reservedby.city"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span style="font-size: 30px; font-weight: bold;">Not specified</span>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Items Section -->
+                        <div class="mt-4">
+                            <div>
+                                <span style="font-size: 20px; font-weight: bold; text-decoration: underline;">Item Name: </span>
+                                <span style="font-size: 20px;"><t t-esc="donation.name"/></span>
+                            </div>
+                            <div class="mt-2">
+                                <span style="font-size: 20px; font-weight: bold; text-decoration: underline;">Quantity: </span>
+                                <span style="font-size: 20px;"><t t-esc="donation.quantity"/></span>
+                            </div>
+                            <div class="mt-2">
+                                <span style="font-size: 20px; font-weight: bold; text-decoration: underline;">State: </span>
+                                <span style="font-size: 20px;"><t t-esc="donation.state"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Signature Section -->
+                        <div class="mt-5">
+                            <div>
+                                <span style="font-size: 20px; font-weight: bold;">Donator Signature: </span>
+                                _________________________
+                            </div>
+                            <div class="mt-3">
+                                <span style="font-size: 20px; font-weight: bold;">Receiver Signature: </span>
+                                _________________________
+                            </div>
+                        </div>
+                    </div>
+                    <div style="page-break-after:always;"></div>
+                </t>
+
+                <div t-if="not filtered_docs" class="text-muted text-center">
+                    No donations selected for reporting.
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

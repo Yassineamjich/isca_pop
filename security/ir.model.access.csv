@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_isca_pop_category_model,isca_pop.category_model,model_isca_pop_category_model,base.group_user,1,1,1,1
+access_isca_pop_items_model,isca_pop.items_model,model_isca_pop_items_model,base.group_user,1,1,1,1
+access_isca_pop_location_model,isca_pop.location_model,model_isca_pop_location_model,base.group_user,1,1,1,1
+access_isca_pop_move_item_model,isca_pop.move_item_model,model_isca_pop_move_item_model,base.group_user,1,1,1,1
+access_isca_pop_donation_model,isca_pop.donation_model,model_isca_pop_donation_model,base.group_user,1,1,1,1
+access_isca_pop_donate_item_model,isca_pop.donate_item_model,model_isca_pop_donate_item_model,base.group_user,1,1,1,1
+access_isca_pop_cancel_item_model,isca_pop.cancel-donation_model,model_isca_pop_cancel_donation_model,base.group_user,1,1,1,1

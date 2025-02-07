@@ -1,0 +1,57 @@
+<odoo>
+    <data>
+        <!-- Tree View for Locations -->
+        <record id="view_isca_pop_location_model_tree" model="ir.ui.view">
+            <field name="name">isca.pop.location.model.tree</field>
+            <field name="model">isca_pop.location_model</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" decoration-info="type == 'warehouse'"/>
+                    <field name="description"/>
+                    <field name="type" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Form View for Locations -->
+        <record id="view_isca_pop_location_model_form" model="ir.ui.view">
+            <field name="name">isca.pop.location.model.form</field>
+            <field name="model">isca_pop.location_model</field>
+            <field name="arch" type="xml">
+                <form string="Location Model">
+
+                    <sheet>
+                        <group>
+                            <field name="name" decoration-info="type == 'warehouse'"/>
+                            <field name="description"/>
+                    <field name="type" widget="statusbar" options="{'clickable': '1'}"/>
+                        </group>
+                        <group>
+                            <field name="items" widget="one2many">
+                                <tree string="Items">
+
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+
+                                </tree>
+
+                            </field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action to open the location views -->
+        <record id="action_isca_pop_location_model" model="ir.actions.act_window">
+            <field name="name">Locations</field>
+            <field name="res_model">isca_pop.location_model</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <!-- Add Locations to the menu -->
+        <menuitem id="menu_isca_pop_location_model" name="Locations" parent="isca_pop.menu_root" action="action_isca_pop_location_model" sequence="30"/>
+    </data>
+</odoo>
+ 

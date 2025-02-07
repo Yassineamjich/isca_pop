@@ -1,0 +1,126 @@
+<odoo>
+    <data>
+      <record id="action_discard_report_server" model="ir.actions.server">
+    <field name="name">Discard Items and Generate Report</field>
+    <field name="model_id" ref="model_isca_pop_items_model"/>
+    <field name="state">code</field>
+    <field name="code">
+    <![CDATA[
+
+records.discard_item()  # Call the discard method
+
+action = env.ref('isca_pop.action_report_discard').report_action(records)
+action  # Last line returns the action dictionary
+    ]]>
+    </field>
+</record>
+    <record id="action_report_discard" model="ir.actions.report">
+            <field name="name">Deactivation Report</field>
+            <field name="model">isca_pop.items_model</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">isca_pop.discard_report_template</field>
+            <field name="print_report_name"> 'Deactivation_Report_%s' % (object[0].name if len(object) == 1 else 'Multiple')</field>
+        </record>
+        <!-- Tree View for Items -->
+        <record id="view_isca_pop_items_model_tree" model="ir.ui.view">
+            <field name="name">isca.pop.items.model.tree</field>
+            <field name="model">isca_pop.items_model</field>
+            <field name="arch" type="xml">
+                <tree string="Your Model">
+                    <field name="name"/>
+                    <field name="photo" widget="image" options="{'size': [80, 80]}"/>
+                    <field name="category_id"/>
+                    <field name="location" />
+                    <field name="state"/>
+                    <field name="total_quantity"/>
+                    
+                    <!-- Button added directly under the tree -->
+                    <header>
+                  <button name="%(action_discard_report_server)d" 
+                                string="Discard Items and Generate Report" 
+                                type="action" 
+                                class="oe_highlight"
+                                confirm="Are you sure you want to discard items and generate the report?"/>
+                        <button name="action_delete_discardable_items" 
+                                string="Delete Discardable Items" 
+                                type="object" 
+                                class="oe_highlight" 
+                                confirm="Are you sure you want to delete all discardable items?"/>
+                    </header>
+                    
+                </tree>
+            </field>
+        </record>
+
+        <!-- Form View for Items -->
+        <record id="view_isca_pop_items_model_form" model="ir.ui.view">
+            <field name="name">isca.pop.items.model.form</field>
+            <field name="model">isca_pop.items_model</field>
+            <field name="arch" type="xml">
+                <form string="Item Model">
+                    <sheet>
+                        <header>
+                            <field name="canbedonated" invisible="1"/>
+                            <group >
+                                <button name="%(action_item_donate_item_wizard)d" string="Donate" type="action" invisible="canbedonated == False or not location" />
+                            </group>
+                        </header>
+                        <group>
+                            <div style="text-align: right;">
+                                <field name="photo" widget="image" class="oe_inline" />
+                            </div>
+                        </group>
+
+                        <group>
+                            <field name="name"/>
+                            <field name="category_id" domain="[('create_uid', '=', uid)]"/>
+                            <field name="location" domain="[('create_uid', '=', uid)]"/>
+                            <field name="state" widget="radio"/>
+                            <field name="quantity"/>
+                            <field name="can_be_discarded"></field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Pivot View for Items -->
+        <record id="isca_pop_items_model_pivot_view" model="ir.ui.view">
+            <field name="name">isca_pop.items.model.pivot</field>
+            <field name="model">isca_pop.items_model</field>
+            <field name="arch" type="xml">
+                <pivot string="Items">
+                    <field name="name" type="row"/>
+
+                    <field name="location" type="col"></field>
+                    <field name="state" type="col"></field>
+
+                    <field name="quantity" type="measure"/>
+
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Action to open the items view -->
+        <record id="action_isca_pop_items_model" model="ir.actions.act_window">
+            <field name="name">Items</field>
+            <field name="res_model">isca_pop.items_model</field>
+            <field name="view_mode">tree,form,pivot</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+         
+
+        </record>
+
+
+
+
+ 
+
+
+        
+        <!-- Add Items to the menu -->
+        <menuitem id="menu_isca_pop_items_model" name="Items" parent="isca_pop.menu_root" action="action_isca_pop_items_model" sequence="20"/>
+        <menuitem id="menu_inventmenu_inventory_move_wizard" name="Move Items" parent="menu_isca_pop_items_model" action="action_item_move_wizard" sequence="20"/>
+        <menuitem id="menu_isca_pop_items_pivot" name="Show Items" parent="menu_isca_pop_items_model" action="action_isca_pop_items_model" sequence="30"/>
+    </data>
+</odoo>

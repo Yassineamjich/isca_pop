@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="discard_report_template">
+        <t t-call="web.html_container">
+            <style>
+                .page {
+                    margin: 2cm;
+                    font-family: Arial, sans-serif;
+                }
+                .header-section {
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 20px;
+                }
+                .section-spacing {
+                    margin-top: 25px;
+                    margin-bottom: 25px;
+                }
+                .signature-box, .inspector-section {
+                    margin-top: 50px;
+                    padding: 15px;
+                    border: 1px solid #000;
+                    min-height: 150px;
+                }
+                .item-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+                .item-table th {
+                    background-color: #f8f9fa;
+                    border: 2px solid #000;
+                    padding: 12px;
+                    text-align: left;
+                }
+                .item-table td {
+                    border: 1px solid #000;
+                    padding: 10px;
+                }
+                .address-row {
+                    margin-top: 15px;
+                }
+                .text-bold {
+                    font-weight: bold;
+                }
+                .text-center {
+                    text-align: center;
+                }
+            </style>
+
+            <div class="page">
+                <!-- Header Section -->
+                <div class="header-section">
+                    <div class="row text-center">
+                        <h2>ANNEX II: EQUIPMENT DEACTIVATION REQUEST</h2>
+                    </div>
+                </div>
+
+                <!-- Center Data -->
+                <div class="section-spacing" t-if="docs">
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="text-bold">CENTER: <span t-field="docs[0].user_id.name"/></p>
+                            
+                            <div class="row address-row">
+                                <div class="col-6">
+                                    <p>
+                                        <span class="text-bold">LOCATION:</span>
+                                        <span t-field="docs[0].user_id.partner_id.city"/>
+                                        <br/>
+                                        <span class="text-bold">ZIP:</span>
+                                        <span t-field="docs[0].user_id.partner_id.zip"/>
+                                    </p>
+                                </div>
+                                <div class="col-6">
+                                    <p>
+                                        <span class="text-bold">ADDRESS:</span>
+                                        <span t-field="docs[0].user_id.street"/> No: 
+                                        <span t-field="docs[0].user_id.street2"/>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="section-spacing">
+                    <table class="item-table">
+                        <thead>
+                            <tr>
+                                <th>ITEM NAME</th>
+                                <th>QUANTITY</th>
+                                <th>CONDITION</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="doc">
+                                <tr t-if="doc.state == 'broken'">
+                                    <td><span t-field="doc.name"/></td>
+                                    <td><span t-field="doc.quantity"/></td>
+                                    <td>Broken</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Signatures Section -->
+                <div class="row section-spacing">
+                    <div class="col-6">
+                        <div class="signature-box">
+                            <p class="text-bold">Date: 
+                                <span t-esc="datetime.datetime.now().strftime('%m/%d/%Y')"/>
+                            </p>
+                            <p class="text-bold mt-3">DIRECTOR'S SIGNATURE:</p>
+                            <div style="height: 40px; border-bottom: 1px solid #000;"></div>
+                            <p class="text-center">CENTRE STAMP</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-6">
+                        <div class="inspector-section">
+                            <p class="text-bold">DISTRICT: _______________________</p>
+                            <p class="text-bold mt-3">INSPECTOR:</p>
+                            <div style="height: 40px;"></div>
+                            <p class="text-bold">
+                                In Valencia on, 
+                                <span t-esc="datetime.datetime.now().strftime('%d')"/> 
+                                of 
+                                <span t-esc="datetime.datetime.now().strftime('%B')"/>, 
+                                <span t-esc="datetime.datetime.now().strftime('%Y')"/>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
