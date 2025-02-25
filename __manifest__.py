@@ -32,6 +32,7 @@ Long description of module's purpose
         'views/cancel_donation.xml',
         'views/donation_view.xml',
         'views/item_view.xml',
+        'views/change_stat_wizzard.xml'
         
         
         

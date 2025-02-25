@@ -16,5 +16,6 @@ class IscaPopLocationModel(models.Model):
     [("class", "Class"),
      ("warehouse", "Warehouse")],
     string="Type",  
+    required = True
     )
    

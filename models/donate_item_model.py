@@ -46,9 +46,10 @@ class DonateItemModel(models.TransientModel):
         # Update the remaining quantity in the source item or remove it if zero
         if remaining_quantity == 0:
             self.item_id.active = False
-            self.item_id.unlink()  # Remove the item from source location
+            self.item_id.with_context(force_unlink=True).unlink()
         else:
             self.item_id.quantity = remaining_quantity
 
         # Return to close the action window
-        return {'type': 'ir.actions.act_window_close'}
+        return {'type': 'ir.actions.act_window_close'
+           }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record id="view_isca_pop_item_state_change_form" model="ir.ui.view">
+        <field name="name">isca.pop.item.state.change.form</field>
+        <field name="model">isca_pop.item_state_change</field>
+        <field name="arch" type="xml">
+            <form string="Change Item State">
+                <group>
+                    <!-- Display the active item (read-only) -->
+                    <field name="item_id" readonly="1"/>
+                    <!-- Show the current state and available quantity -->
+               
+                        <field name="current_state" readonly="1"/>
+                        <field name="available_quantity" readonly="1"/>
+                  
+                    <!-- Input fields for quantity to move and new state -->
+                    <field name="quantity_to_move"/>
+                    <field name="new_state" widget="statusbar" options="{'clickable': '1'}"/>
+                </group>
+                <footer>
+                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard, passing active_id as default for item_id -->
+    <record id="action_isca_pop_item_state_change" model="ir.actions.act_window">
+        <field name="name">Change Item State</field>
+        <field name="res_model">isca_pop.item_state_change</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_item_id': active_id}</field>
+    </record>
+</odoo>

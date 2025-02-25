@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import UserError, ValidationError
 
 class IscaPopItemsModel(models.Model):
     _name = 'isca_pop.items_model'
@@ -12,9 +13,10 @@ class IscaPopItemsModel(models.Model):
         ("broken", "Broken")
     ], string="State", default="new")
     
-    category_id = fields.Many2one('isca_pop.category_model', string="Category", required=True)
-    user_id = fields.Many2one(comodel_name='res.users', string='Responsible User', default=lambda self: self.env.user, required=True)
-    location = fields.Many2one('isca_pop.location_model', string="Location", required=True)
+    category_id = fields.Many2one('isca_pop.category_model', string="Category" , domain="[('create_uid', '=', uid)]")
+    user_id = fields.Many2one(comodel_name='res.users', string='Responsible User', 
+                              default=lambda self: self.env.user, required=True)
+    location = fields.Many2one('isca_pop.location_model', string="Location" , domain="[('create_uid', '=', uid)]")
     
     quantity = fields.Integer(string="Quantity", required=True)
     total_quantity = fields.Integer(string="Total Quantity", compute='_compute_total_quantity', store=True)
@@ -23,19 +25,19 @@ class IscaPopItemsModel(models.Model):
     donated = fields.Boolean(string="Donated", default=False, readonly=True)
     canbedonated = fields.Boolean(string="Can be Donated", store=False, compute="_compute_canbedonated")
     active = fields.Boolean(string="Active", default=True)
+
     def action_delete_discardable_items(self):
         """ Delete all records where can_be_discarded is True """
         records_to_delete = self.search([('can_be_discarded', '=', True)])
-        
         if not records_to_delete:
-            raise UserError("No items found that can be discarded.") # type: ignore
-        
+            raise UserError("No items found that can be discarded.")
         records_to_delete.unlink()
+
     @api.depends('location', 'state')
     def _compute_canbedonated(self):
         """ Determines if an item can be donated based on location type and state. """
         for record in self:
-            if record.location and record.location.type == 'class' or record.state == 'broken':
+            if (record.location and record.location.type == 'class') or record.state == 'broken':
                 record.canbedonated = False
             else:
                 record.canbedonated = True
@@ -69,3 +71,11 @@ class IscaPopItemsModel(models.Model):
             return existing_item
         else:
             return super(IscaPopItemsModel, self).create(vals)
+
+    def unlink(self):
+        # Allow force deletion if 'force_unlink' is in context
+        if not self.env.context.get('force_unlink'):
+            for record in self:
+                if not record.can_be_discarded:
+                    raise UserError("This item cannot be discarded because it is not marked as discardable.")
+        return super(IscaPopItemsModel, self).unlink()

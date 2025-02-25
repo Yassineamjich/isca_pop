@@ -1,67 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <!-- Define the Tree View for Donation Model -->
-        <record id="donation_model_tree_view" model="ir.ui.view">
-            <field name="name">donation.model.tree</field>
-            <field name="model">isca_pop.donation_model</field>
-            <field name="arch" type="xml">
-                <tree string="Donations" decoration-info="state == 'new'">
-                    <!-- Adding grouping to organize fields -->
-                    <field name="photo" widget="image" options="{'size': [64, 64]}" />
-                    <field name="name"/>
-                    <field name="state"/>
-                    <field name="field_test"></field>
-                    <field name="quantity" widget="integer"/>
-                    <field name="donator"></field>
-                    <field name="reserve" widget="boolean_toggle" invisible="create_uid == uid"></field>
-                    <field name="reservedby" ></field>
-                   <field name="create_uid" invisible="1"></field>
-                    <!-- Move the button to the beginning and add styling -->
-                   
-                    <button name="open_cancel_donation_wizard" string="Undonate" type="object" icon="fa-undo" context="{'active_id': id}" class="btn-icon"  invisible="create_uid != uid" />
-                </tree>
-            </field>
-        </record>
-
-      
-
-        <!-- Define the Action for Donation Model -->
-        <record id="isca_pop.donation_model_action" model="ir.actions.act_window">
-    <field name="name">Donations</field>
-    <field name="res_model">isca_pop.donation_model</field>
-    <field name="view_mode">tree</field>
-    <field name="view_id" ref="donation_model_tree_view"/>
-    <field name="help" type="html">
-        <p class="o_view_nocontent_smiling_face">
-            Manage your donations efficiently.
-        </p>
-    </field> <!-- Close the help field here -->
-    <field name="domain">[ '|', ('reserve', '=', False), '|', ('create_uid', '=', uid), ('reservedby', '=', uid)]</field>
-</record>
-        <record id="action_report_action_name" model="ir.actions.report">
+        <!-- Report Action for Donation Report -->
+        <record id="action_report_donation_confirmation_report" model="ir.actions.report">
             <field name="name">Donation_Report</field>
             <field name="model">isca_pop.donation_model</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">isca_pop.donation_template</field>
-            <field name="report_file">Donation_Report</field>
-            <field name="print_report_name">'%s' % object.name</field>
-            <field name="binding_model_id" ref="model_isca_pop_donation_model"/>
-           
+            <field name="print_report_name">'Donation_Report_%s' % (object.name if object else '')</field>
         </record>
-         <record id="donation_model_search_view" model="ir.ui.view">
+
+        <record id="action_confirm_donation" model="ir.actions.server">
+            <field name="name">Confirm Donation and Generate Report</field>
+            <field name="model_id" ref="model_isca_pop_donation_model"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+# Confirm donations (only those with reserve and current user as donator)
+records.confirm_donation()
+
+# Generate the report using the current record IDs
+action = env.ref('isca_pop.action_report_donation_confirmation_report').report_action(records.ids)
+action
+        ]]>
+            </field>
+        </record>
+
+
+        <!-- Server Action: Process Donations (Create Item and Delete Donation) -->
+        <record id="action_process_donation" model="ir.actions.server">
+            <field name="name">Process Donation (Create Item and Delete Donation)</field>
+            <field name="model_id" ref="model_isca_pop_donation_model"/>
+            <field name="state">code</field>
+            <field name="code">
+                <![CDATA[
+# Process donations: Create items from confirmed donations and unlink them.
+records.create_item_from_donation()
+action = {'type': 'ir.actions.client', 'tag': 'reload'}
+action
+                ]]>
+            </field>
+        </record>
+
+        <!-- Tree View for Donation Model with Header Buttons -->
+        <record id="donation_model_tree_view" model="ir.ui.view">
+            <field name="name">donation.model.tree</field>
+            <field name="model">isca_pop.donation_model</field>
+            <field name="arch" type="xml">
+                <tree string="Donations" decoration-info="state == 'new'" create="false">
+                    <header>
+                        <!-- Button to confirm donations -->
+                        <button name="%(action_confirm_donation)d" string="generate Confirmation pdf for Donations" type="action" class="oe_highlight" confirm="Are you sure you want to confirm the selected donations?"/>
+                        <!-- Button to process donations (create items and delete donations) -->
+                        <button name="%(action_process_donation)d" string="Process confirmed Donations" type="action" class="oe_highlight" confirm="Are you sure you want to create items from and delete the selected donations?"/>
+                    </header>
+                    <field name="photo" widget="image" options="{'size': [64, 64]}"/>
+                    <field name="name"/>
+                    <field name="state"/>
+                    <field name="quantity" widget="integer"/>
+                    <field name="donator"/>
+                    <field name="reserve" widget="boolean_toggle" invisible="create_uid == uid"/>
+                    <field name="reservedby"/>
+                    <field name="create_uid" invisible="1" nolabel="1"/>
+                    <!-- Existing button for cancel donation -->
+                    <field name="confirmed"></field>
+                    
+                    <button name="open_cancel_donation_wizard" string="Undonate" type="object" icon="fa-undo" context="{'active_id': id}" class="btn-icon" invisible="create_uid != uid or confirmed or reserve"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action to open the Donation Model -->
+        <record id="isca_pop.donation_model_action" model="ir.actions.act_window">
+            <field name="name">Donations</field>
+            <field name="res_model">isca_pop.donation_model</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="donation_model_tree_view"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Manage your donations efficiently.
+                </p>
+            </field>
+            <field name="domain">[ '|', ('reserve', '=', False), '|', ('create_uid', '=', uid), ('reservedby', '=', uid)]</field>
+        </record>
+
+        <!-- Search View for Donation Model -->
+        <record id="donation_model_search_view" model="ir.ui.view">
             <field name="name">donation.model.search</field>
             <field name="model">isca_pop.donation_model</field>
             <field name="arch" type="xml">
                 <search>
-                   
-
                     <!-- Predefined filters -->
- 
                     <filter string="My Donations" name="my_donations" domain="[('create_uid', '=', uid)]"/>
                     <filter string="Available Donations" name="available_donations" domain="[('reserve', '=', False)]"/>
                     <filter string="Petitions" name="petitions" domain="[('donator', '=', uid), ('reserve', '=', True)]"/>
-
                     <!-- Group By options -->
                     <group expand="1" string="Group By">
                         <filter string="Donator" name="group_by_donator" context="{'group_by': 'donator'}"/>
@@ -71,7 +103,8 @@
                 </search>
             </field>
         </record>
-        <!-- Add a Menu Item for Donations under the Parent Menu -->
+
+        <!-- Menu Item for Donations -->
         <menuitem id="menu_inventmenu_donation" name="Donations" parent="isca_pop.menu_root" action="isca_pop.donation_model_action" sequence="20"/>
     </data>
 </odoo>

@@ -75,7 +75,7 @@
                                 <div class="col-6">
                                     <p>
                                         <span class="text-bold">ADDRESS:</span>
-                                        <span t-field="docs[0].user_id.street"/> No: 
+                                        <span t-field="docs[0].user_id.street"/> 
                                         <span t-field="docs[0].user_id.street2"/>
                                     </p>
                                 </div>

@@ -8,31 +8,31 @@ class MoveItemWizard(models.TransientModel):
     base_location = fields.Many2one(
         'isca_pop.location_model', 
         string="Source Location", 
-        required=True
+        required=True,
+        domain="[('create_uid', '=', uid)]"  # Filter locations by current user
     )
     item_id = fields.Many2one(
         'isca_pop.items_model', 
         string="Item", 
         required=True,
-        domain="[('location', '=', base_location)]"  # Domain to filter items based on the selected source location
+        domain="[('location', '=', base_location), ('create_uid', '=', uid)]"  # Filter items by the selected source location and current user
     )
     available_quantity = fields.Integer(
         string="Available Quantity", 
         compute="_compute_available_quantity", 
-        store=False  # Store=True if you want to save this value in the database
+        store=False
     )
     quantity_to_move = fields.Integer(string="Quantity to Move", required=True)
     target_location = fields.Many2one(
         'isca_pop.location_model', 
         string="Target Location", 
         required=True,
-        domain="[('id', '!=', base_location)]"  # Exclude the source location from the target location options
+        domain="[('create_uid', '=', uid), ('id', '!=', base_location)]"  # Filter target locations by current user and exclude the source location
     )
 
     @api.depends('item_id')
     def _compute_available_quantity(self):
         for record in self:
-            # Set the available quantity based on the selected item's quantity
             record.available_quantity = record.item_id.quantity if record.item_id else 0
 
     def action_confirm(self):
@@ -59,22 +59,18 @@ class MoveItemWizard(models.TransientModel):
             # Create a new item in the target location if it doesn't exist
             self.env['isca_pop.items_model'].create({
                 'name': self.item_id.name,
-               
                 'photo': self.item_id.photo,
                 'state': self.item_id.state,
-               
                 'category_id': self.item_id.category_id.id,
-                
                 'location': self.target_location.id,
                 'quantity': self.quantity_to_move,
-                'total_quantity': self.quantity_to_move,  # Assuming this field tracks total stock for the item
+                'total_quantity': self.quantity_to_move,
             })
 
         # After everything is done, check if the remaining quantity is zero, then delete the item
         if remaining_quantity == 0:
             self.item_id.unlink()
         else:
-            # Otherwise, update the quantity in the source location
             self.item_id.quantity = remaining_quantity
 
         # Return to close the action window
