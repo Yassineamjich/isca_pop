@@ -23,16 +23,20 @@ Long description of module's purpose
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/donation_report.xml',
-        'views/baja_item_report.xml',
-        'views/category_view.xml',
-        'views/move_item_view.xml',
-        'views/location_view.xml',
+        'views/change_stat_wizzard.xml',
         'views/donate_item.xml',
         'views/cancel_donation.xml',
+        'views/baja_item_report.xml',
+        'views/move_item_view.xml',
+        'views/donation_report.xml',
+       
+        'views/category_view.xml',
+       
+        'views/location_view.xml',
+       
         'views/donation_view.xml',
         'views/item_view.xml',
-        'views/change_stat_wizzard.xml'
+        
         
         
         
