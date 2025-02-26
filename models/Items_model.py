@@ -44,12 +44,15 @@ class IscaPopItemsModel(models.Model):
 
     @api.depends('quantity', 'name')
     def _compute_total_quantity(self):
-        """ Computes total quantity for all items with the same name. """
-        for record in self:
-            records_with_same_name = self.search([('name', '=', record.name)])
+            """ Computes total quantity for all items with the same name and created by the same user. """
+            for record in self:
+                domain = [
+                    ('name', '=', record.name),
+                    ('create_uid', '=', record.create_uid.id)
+                ]
+            records_with_same_name = self.search(domain)
             total = sum(records_with_same_name.mapped('quantity'))
             record.total_quantity = total
-
     def discard_item(self):
         for record in self:
             if record.state == "broken":
